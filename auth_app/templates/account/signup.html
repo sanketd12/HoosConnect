@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+{% load static %}
+
+{% block content %}
+<head>
+    <title>Log In</title>
+</head>
+<body style="background-color: #C8CBD2;">
+    <nav class="navbar-container">
+        <header>Log in to <span class="logo-text">HoosCollab</span></header>
+    </nav>
+
+    <!-- Google login button -->
+    <div class="main-container">
+        <div class="google-btn-container">
+            <p>Hi there&#44<br>Click below to sign up using Google.</p>
+            <a href="{% provider_login_url 'google' %}" class="google-btn">
+                <img src="{% static 'Google_icon.png' %}" class="google-icon">
+                Continue with Google
+            </a>
+        </div>
+    </div>
+</body>
+{% endblock %}

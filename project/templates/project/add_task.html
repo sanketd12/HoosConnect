@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if messages %}
+    <script>
+        // wait for the DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            const banner = document.getElementById('messages-banner');
+
+            if (banner) {
+                // automatically hide the banner after 3 seconds
+                setTimeout(function () {
+                    banner.style.transition = "opacity 0.5s ease-out"; // add smooth transition
+                    banner.style.opacity = "0"; // set opacity to 0 (fade-out effect)
+
+                    // remove the banner from the DOM after the transition ends
+                    setTimeout(function () {
+                        banner.remove();
+                    }, 500); // match this timeout with the CSS transition duration
+                }, 3000); // delay before starting the fade-out
+            }
+        });
+    </script>
+
+    <div id="messages-banner">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <nav class="navbar-container">
+        <header>Create a Task for {{ project.project_name }}</header>
+        <a href="{% url 'org_project_list' org_id=org.pk %}" class="outline-btn">Back to Projects</a>
+    </nav>
+
+    <div class="custom-form-container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h2>Task Details</h2>
+            
+            <!-- render other form fields -->
+            {{ form.task_name.label_tag }}
+            {{ form.task_name }}
+
+            {{ form.description.label_tag }}
+            {{ form.description }}
+
+            {{ form.due_date.label_tag }}
+            {{ form.due_date }}
+
+            {{ form.task_status.label_tag }}
+            {{ form.task_status }}
+
+            {{ form.collaborators.label_tag }}
+
+            {% if form.collaborators.help_text %}
+                <p style="font-size: 1.6rem;">{{ form.collaborators.help_text }}</p>
+            {% endif %}
+
+            {{ form.collaborators }}
+            <p style="font-size: 1.6rem;"><em>Project Creator: {{ project.user_id.get_full_name|default:project.user_id.username }}</em></p>
+
+            <h2>Upload a File</h2>
+
+            <!-- custom file input -->
+            <div class="form-field file-input-wrapper">
+                <label for="file" class="custom-file-input">
+                    Choose File
+                    <input id="file" type="file" name="file">
+                </label>
+                <span id="file-chosen-text" class="file-chosen-text">No file chosen</span>
+            </div>
+
+            <!-- file metadata fields -->
+            {{ form.file_title.label_tag }}
+            {{ form.file_title }}
+            {% if form.file_title.errors %}
+                <div class="error-text"><em>{{ form.file_title.errors|join:", " }}</em></div>
+            {% endif %}
+
+            {{ form.file_description.label_tag }}
+            {{ form.file_description }}
+
+            {{ form.file_keywords.label_tag }}
+            {{ form.file_keywords }}
+
+            <!-- submit and cancel buttons -->
+            <div class="button-container">
+                <button type="submit" class="btn">Create Task</button>
+                <a href="{% url 'org_project_list' org_id=org.pk %}" class="outline-btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fileInput = document.getElementById('file');
+            const fileChosenText = document.getElementById('file-chosen-text');
+
+            fileInput.addEventListener('change', function () {
+                if (fileInput.files.length > 0) {
+                    fileChosenText.textContent = fileInput.files[0].name;
+                } else {
+                    fileChosenText.textContent = "No file chosen";
+                }
+            });
+        });
+    </script>
+
+{% endblock %}

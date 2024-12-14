@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <nav class="navbar-container">
+        <header>Messages for {{ task.task_name }}</header>
+        <a href="{% url 'org_project_list' org_id=org_id %}" class="outline-btn">Back to Projects</a>
+    </nav>
+
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="message-item">
+                <span class="message-content">
+                    <span class="message-username">
+                        {{ message.user.get_full_name|default:message.user.username }}
+                    </span>: {{ message.content }}
+                </span>
+                <span class="message-timestamp">
+                    {{ message.msg_timestamp|date:"Y-m-d H:i" }}
+                    {% if is_pma_admin or message.user == request.user or task.project_id.user_id == request.user %}
+                        <a href="{% url 'delete_task_message' org_id=org_id task_id=task.task_id message_id=message.id %}" class="delete-msg-btn">Delete</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% empty %}
+            <p>No messages yet. Start the conversation!</p>
+        {% endfor %}
+        <div class="message-form-button-container">
+        </div>
+    </div>
+    
+    {% if not is_pma_admin %}
+        <form method="post" class="message-form">
+            {% csrf_token %}
+            {{ form.content }}
+            <div class="message-form-button-container">
+                <button type="submit" class="btn">Post</button>
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+{% load static %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        {% if messages %}
+        <script>
+            // wait for the DOM to be fully loaded
+            document.addEventListener('DOMContentLoaded', function () {
+                const banner = document.getElementById('messages-banner');
+        
+                if (banner) {
+                    // automatically hide the banner after 3 seconds
+                    setTimeout(function () {
+                        banner.style.transition = "opacity 0.5s ease-out"; // add smooth transition
+                        banner.style.opacity = "0"; // set opacity to 0 (fade-out effect)
+        
+                        // remove the banner from the DOM after the transition ends
+                        setTimeout(function () {
+                            banner.remove();
+                        }, 500); // match this timeout with the CSS transition duration
+                    }, 3000); // delay before starting the fade-out
+                }
+            });
+        </script>
+
+        <div id="messages-banner">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="profile-banner-container">
+            <div class="profile-banner"></div>
+            <img src="{% static 'profile_photo_placeholder.png' %}" class="profile-photo">
+        </div>
+        <div class="profile-container">
+            <div class="profile-details-container">
+                <header class="user-name">
+                    {{ first_name }} {{ last_name }}
+                    {% if pronoun %}
+                        <span class="pronoun">({{ pronoun }})</span>
+                    {% endif %}
+                </header>
+
+                <p><span class="profile-label">Email:</span> {{ user.email }}</p>
+
+                <p>
+                    <span class="profile-label">Computing ID:</span>
+                    {% if user.profile.computing_id %}
+                        {{ user.profile.computing_id }}
+                    {% else %}
+                        <em>Update your profile</em>
+                    {% endif %}
+                </p>
+                
+                <p><span class="profile-label">Date Joined:</span> {{ user.date_joined|date:"F j, Y" }}</p>
+
+                <div class="user-role-container">
+                    <p>
+                        <span class="profile-label">User Role:</span> 
+                        {{ current_role }}
+                    </p>
+    
+                    {% if can_be_pma_admin %}
+                        <form method="post" action="{% url 'switch_role' %}">
+                            {% csrf_token %}
+                            <button class="outline-btn-sm">Switch Role</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="profile-btn-container">
+                <a href="{% url 'profile' %}" class="btn">Update Profile</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="outline-btn" type="submit">Log Out</button>
+                </form>
+            </div>
+        </div>
+        <div class="profile-main-container">
+            <div class="dashboard-container">
+                <h2 class="dashboard-header">Active Organizations {% if not is_pma_admin %}<a href="{% url 'manage_organizations' %}" class="outline-btn-sm">Edit</a>{% endif %}</h2>
+                {% if org_details %}
+                <div class="button-grid">
+                    {% for org in org_details %}
+                        <a href="{% url 'org_project_list' org.org_id %}" class="btn">{{ org.org_name }}</a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <p>You are not currently involved in any organization.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <a href="{% provider_login_url 'google' %}">Login with Google</a>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="file-header">
+    <header>File: {{ taskfile.title }}</header>
+    <div class="header-right">
+        <a href="{% url 'org_project_list' org_id=org_id %}" class="btn">Return to Projects</a>
+    </div>
+</div>
+<div class="file-details">
+    <p>Description: {{ taskfile.file_description }}</p>
+    <p>Keywords: {{ taskfile.keywords }}</p>
+    <p>Uploaded at: {{ taskfile.timestamp }}</p>
+</div>
+
+<div class="file-display">
+    {% if file_extension == "jpg" or file_extension == "jpeg" %}
+        <img src="{{ file_url }}" alt="File" class="file-image">
+    {% elif file_extension == "pdf" %}
+        <iframe src="{{ file_url }}" class="file-iframe"></iframe>
+    {% else %}
+        <a href="{{ file_url }}" target="_blank">Download File</a>
+    {% endif %}
+</div>
+{% endblock %}

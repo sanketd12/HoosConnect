@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <nav class="navbar-container">
+        <a class="logo-text" href="#">HoosCollab</a>
+        <div class="navbar-btn-container">
+            <a href="{% url 'account_login' %}" class="outline-btn">Log In</a>
+            <a href="{% url 'account_signup' %}" class="btn">Sign Up</a>
+        </div>
+    </nav>
+    <div class="rectangle-container">
+        <h1>From Planning to Execution,<br>All in One Place.</h1>
+        <p>Streamline your club’s workflow with a tool designed for student organizations.</p>
+        <a href="{% url 'public_org_project_list' %}" class="btn">View Ongoing Projects</a>
+    </div>
+{% endblock %}

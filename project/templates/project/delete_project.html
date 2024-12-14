@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar-container">
+    <header>Delete Project in {{ org.org_name }}</header>
+</nav>
+<div class="custom-form-container">
+    <div class="form-section">
+        <h2 class="section-title">Delete Project</h2>
+        {% if delete_form.fields.projects.queryset.exists %}
+            <form method="POST">
+                {% csrf_token %}
+                {{ delete_form.projects }}
+                <div class="button-container">
+                    <button type="submit" class="btn btn-danger">Delete Selected</button>
+                    <a href="{% url 'org_project_list' org_id %}" class="outline-btn">Back to Projects</a>
+                </div>
+            </form>
+        {% else %}
+            <p>You do not currently own any project.</p>
+            <br>
+            <div class="button-container">
+                <a href="{% url 'org_project_list' org_id %}" class="btn">Return to Projects</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

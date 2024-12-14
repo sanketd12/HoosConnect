@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="custom-form-container">
+        <div class="header-container" style="display: flex; align-items: center; gap: 10px;">
+            <header>Edit User Profile</header>
+        </div>
+        <p><i>Profile photo uploads and banner customization are not currently supported by this system.</i></p>
+        <div class="form-section">
+            <h2 class="section-title">User Profile Details</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ user_form.as_p }}
+                {{ profile_form.as_p }}
+                <div class="button-container">
+                    <button class="btn" type="submit" name="update_profile">Update Profile</button>
+                    <a class="outline-btn" href="/user/">Return Home</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

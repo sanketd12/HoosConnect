@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar-container">
+    <header>Create Project in {{ org.org_name }}</header>
+</nav>
+<div class="custom-form-container">
+    <div class="form-section">
+        <h2>Create New Project</h2>
+    </div>
+    <form method="POST" action="{% url 'edit_project' org_id=org.pk %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="button-container">
+            <button type="submit" class="btn">Next</button>
+            <a href="{% url 'org_project_list' org_id %}" class="outline-btn">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

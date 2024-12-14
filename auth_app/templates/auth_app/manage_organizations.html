@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="custom-form-container">
+        <header>Manage Organizations</header>
+
+        {% if not is_pma_admin %}
+
+        <!-- <div class="form-section">
+            <h2 class="section-title">Add New Organization</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ add_org_form.as_p }}
+                <div class="button-container">
+                    <button class="btn" type="submit" name="add_org">Add Organization</button>
+                </div>
+            </form>
+        </div> -->
+        <div class="form-section">
+            <h2 class="section-title">Join an Organization</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {{ join_org_form.as_p }}
+                <div class="button-container">
+                    <button class="btn" type="submit" name="join_org">Join Organization</button>
+                </div>
+            </form>
+        </div>
+        
+        {% endif %}
+
+        <div class="form-section">
+            <h2 class="section-title">Leave Organization</h2>
+            {% if user_in_orgs %}
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ remove_org_form.as_p }}
+                    <div class="button-container">
+                        <button class="btn" type="submit" name="remove_org">Leave Selected Organizations</button>
+                    </div>
+                </form>
+            {% else %}
+                <p>You are not currently in any organization. Join one now!</p>
+            {% endif %}
+        </div>
+
+        <div class="button-container">
+            <a class="outline-btn" href="{% url 'user' %}">Back to Home</a>
+        </div>
+    </div>  
+{% endblock %}

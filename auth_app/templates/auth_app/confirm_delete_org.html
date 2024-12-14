@@ -1,0 +1,20 @@
+<!-- {% extends 'base.html' %}
+
+{% block content %}
+    <nav class="navbar-container">
+        <header>Delete Organization</header>
+    </nav>
+    <div class="join-request-container">
+        <p>
+            Deleting organization "{{ org.org_name }}" will permanently remove all associated projects, tasks, files, and messages.
+            Are you sure you want to proceed?
+        </p>
+        <div class="button-container">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Organization</button>
+            </form>
+            <a href="{% url 'user' %}" class="outline-btn">Cancel</a>
+        </div>
+    </div>
+{% endblock %} -->

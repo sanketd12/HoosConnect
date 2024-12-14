@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<nav class="navbar-container">
+    <header>Edit Task: {{ task.task_name }}</header>
+    <a href="{% url 'org_project_list' org_id=org.pk %}" class="outline-btn">Back to Projects</a>
+</nav>
+
+<div class="custom-form-container">
+    {% if not is_pma_admin %}
+    <!-- Edit Task Details Form -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2 class="section-title">Edit Task Details</h2>
+        {{ form.as_p }}
+
+        <p style="font-size: 1.6rem;"><em>Project Creator: {{ task.project_id.user_id.get_full_name|default:task.project_id.user_id.username }}</em></p>
+        <p style="font-size: 1.6rem;">Remove yourself from the collaborator list to leave the task. You will lose edit and file access to this task.</p>
+
+        <div class="button-container">
+            <button type="submit" name="edit_task" class="btn">Save Changes</button>
+            <a href="{% url 'org_project_list' org_id=org.pk %}" class="outline-btn">Cancel</a>
+        </div>
+    </form>
+
+    <!-- Upload File Form -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2 class="section-title">Upload a File</h2>
+        {{ file_form.as_p }}
+        <div class="button-container">
+            <button type="submit" name="upload_file" class="btn">Upload File</button>
+            <a href="{% url 'org_project_list' org_id=org.pk %}" class="outline-btn">Cancel</a>
+        </div>
+    </form>
+    {% endif %}
+
+    <!-- Uploaded Files Section -->
+    <h2 class="section-title">Uploaded Files</h2>
+    <ul>
+        {% for file in task_files %}
+            <li>
+                <div class="uploaded-files">
+                    <a href="{% url 'serve_taskfile' org_id=org.org_id file_id=file.id %}" class="file-link" target="_blank">{{ file.title }}</a>
+                    {% if is_pma_admin or is_project_owner or file.uploaded_by == request.user %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" name="delete_file" value="{{ file.id }}" class="btn">Delete</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </li>
+        {% empty %}
+            <li>No files have been uploaded yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const fileInput = document.getElementById('file');
+        const fileChosenText = document.getElementById('file-chosen-text');
+
+        fileInput.addEventListener('change', function () {
+            if (fileInput.files.length > 0) {
+                fileChosenText.textContent = fileInput.files[0].name;
+            } else {
+                fileChosenText.textContent = "No file chosen";
+            }
+        });
+    });
+</script>
+
+{% endblock %}

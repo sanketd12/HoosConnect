@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <nav class="navbar-container">
+        <header>Delete Task</header>
+    </nav>
+    <div class="join-request-container">
+        <p>
+            Deleting this task will permanently remove all associated data, including uploaded files and messages. 
+            Are you sure you want to proceed?
+        </p>
+        <div class="button-container">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Task</button>
+            </form>
+            <a href="{% url 'org_project_list' org_id=org_id %}" class="outline-btn">Back to Projects</a>
+        </div>
+    </div>
+{% endblock %}

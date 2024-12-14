@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar-container">
+    <header>Join Request for Task: {{ task.task_name }}</header>
+</nav>
+<div class="join-request-container">
+    <p>Please contact the executive team of {{ org.org_name }} to request to join! They will add you as a collaborator to the task once they verify your member status.</p>
+    <div class="button-container">
+        <a href="{% url 'org_project_list' org_id=org.org_id %}" class="btn">Back to Projects</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if messages %}
+<script>
+    // wait for the DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function () {
+        const banner = document.getElementById('messages-banner');
+
+        if (banner) {
+            // automatically hide the banner after 3 seconds
+            setTimeout(function () {
+                banner.style.transition = "opacity 0.5s ease-out"; // add smooth transition
+                banner.style.opacity = "0"; // set opacity to 0 (fade-out effect)
+
+                // remove the banner from the DOM after the transition ends
+                setTimeout(function () {
+                    banner.remove();
+                }, 500); // match this timeout with the CSS transition duration
+            }, 3000); // delay before starting the fade-out
+        }
+    });
+</script>
+
+<div id="messages-banner">
+    {% for message in messages %}
+        {{ message }}
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="org-header">
+    <header class="org-name">Projects for {{ org.org_name }}</header>
+    <div class="header-right">
+        {% if not is_pma_admin %}
+            <a href="{% url 'edit_project' org_id=org_id %}" class="btn">New Project</a>
+            <a href="{% url 'delete_project' org_id=org_id %}" class="btn">Delete Project</a>
+        {% endif %}
+        {% if is_pma_admin %}
+            <a href="{% url 'delete_project' org_id=org_id %}" class="btn">Delete Project</a>
+        {% endif %}
+        <a href="{% url 'user' %}" class="outline-btn">Return Home</a>
+        <!-- <a href="{% url 'user' %}">
+            <img src="{% static 'profile_photo_placeholder.png' %}" alt="Profile" class="profile-icon">
+        </a> -->
+    </div>
+</div>
+
+{% if project_tasks %}
+    <ul class="project-list">
+        {% for project_data in project_tasks %}
+            <li class="project-item">
+                <div class="project-header">
+                    <h2>{{ project_data.project.project_name }}</h2>
+                    {% if project_data.is_project_owner and not request.session.is_pma_admin %}
+                        <a href="{% url 'add_task' org_id=org.org_id project_id=project_data.project.project_id %}" class="btn">Add Task</a>
+                    {% endif %}
+                </div>
+                <p class="created-on">Project created on {{ project_data.project.created_at|date:"F j, Y" }}.</p>
+
+                {% if project_data.tasks %}
+                    <ul class="task-list">
+                        {% for task_data in project_data.tasks %}
+                            <li class="task-item">
+                                <div class="task-header">
+                                    <strong>{{ task_data.task.task_name }}</strong>
+                                    <div>
+                                        {% if project_data.is_project_owner or is_pma_admin or task_data.is_task_collaborator %}
+                                        <div class="task-button-container">
+                                            <a href="{% url 'edit_task' org_id=org.org_id task_id=task_data.task.task_id %}" class="outline-btn-sm">Edit Task</a>
+                                            <a href="{% url 'delete_task_confirm' org_id=org.org_id task_id=task_data.task.task_id %}" class="outline-btn-sm">Delete Task</a>
+                                        </div>
+                                        {% else %}  
+                                            {% if not request.session.is_pma_admin %}
+                                                <a href="{% url 'join_request' org_id=org.org_id task_id=task_data.task.task_id %}" class="outline-btn-sm">Join Request</a>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="task-info-row">
+                                    <div class="task-collaborators">
+                                        <h4>Collaborators</h4>
+                                        <p>
+                                            {% if task_data.collaborators %}
+                                                {% for collaborator in task_data.collaborators %}
+                                                    {{ collaborator.get_full_name|default:collaborator.username }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                None
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="task-info-row-due-status">
+                                        <div class="task-due-date">
+                                            <h4>Due Date</h4>
+                                            <p>{{ task_data.task.due_date }}</p>
+                                        </div>
+                                        <div class="task-status task-status-{{ task_data.task.task_status|slugify }}">
+                                            <h4>Status</h4>
+                                            <p>
+                                                <span class="status-dot status-dot-{{ task_data.task.task_status|slugify }}"></span>
+                                                {% if task_data.task.task_status == 'in progress' %}In Progress
+                                                {% elif task_data.task.task_status == 'completed' %}Completed
+                                                {% elif task_data.task.task_status == 'stuck' %}Stuck
+                                                {% elif task_data.task.task_status == 'awaiting review' %}In Review
+                                                {% else %}Not Started
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="task-info-row">
+                                    <div class="task-description">
+                                        <h4>Description</h4>
+                                        <p>{{ task_data.task.description }}</p>
+                                        <p class="created-on">Task created on {{ task_data.task.created_at|date:"F j, Y" }}.</p>
+                                    </div>
+                                    <div class="task-files">
+                                        <h4>Files</h4>
+                                        <ul>
+                                            {% for file in task_data.files %}
+                                                <li><a href="{% url 'serve_taskfile' org_id=org.org_id file_id=file.id %}" class="file-link">{{ file.title }}</a></li>
+                                            {% empty %}
+                                                <p>No files uploaded for this task.</p>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="task-messages">
+                                    <div class="task-header">
+                                        <h4>Messages</h4>
+                                        <!-- <p>The three most recent messages are displayed here. Click "Add Message" to view all messages or to add your own.</p> -->
+                                        {% if project_data.is_project_owner or task_data.is_task_collaborator %}
+                                            <a href="{% url 'task_message' org_id=org.org_id task_id=task_data.task.task_id %}" class="outline-btn-sm">View All Messages</a>
+                                        {% endif %}
+                                    </div>
+                                    <ul>
+                                        {% if project_data.is_project_owner or task_data.is_task_collaborator %}
+                                            {% for message in task_data.messages|slice:":3" %}
+                                                <li class="message-item">
+                                                    <span class="message-content">
+                                                        <span class="message-username">
+                                                            {{ message.user.get_full_name|default:message.user.username }}
+                                                        </span>: {{ message.content }}
+                                                    </span>
+                                                    <span class="message-timestamp">{{ message.msg_timestamp|date:"Y-m-d H:i" }}</span>
+                                                </li>
+                                            {% empty %}
+                                                <p>No messages for this task yet.</p>
+                                                <br>
+                                            {% endfor %}
+
+                                            {% if not is_pma_admin %}
+                                                <form method="post" class="org-project-message-form">
+                                                    {% csrf_token %}
+                                                    {{ task_data.message_form.content }}
+                                                    <input type="hidden" name="task_id" value="{{ task_data.task.task_id }}">
+                                                    <div class="message-form-button-container">
+                                                        <button type="submit" class="outline-btn-sm">Post</button>
+                                                    </div>
+                                                </form>
+                                            {% endif %}
+
+                                        {% else %}
+                                                <p>You do not have permission to view messages for this task.</p>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="task-item">
+                        <p>No tasks assigned to this project yet.</p>
+                    </div>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <div class="task-item">
+        <p>No projects found for this organization.</p>
+    </div>
+{% endif %}
+{% endblock %}
